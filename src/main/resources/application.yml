@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: FloraGuard
+
+profiles:
+  default: local
+
+server:
+  port: 8080
