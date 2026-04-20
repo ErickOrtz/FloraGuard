@@ -1,66 +1,58 @@
 package floraguard.config.jwt
 
-import io.jsonwebtoken.Claims
+import floraguard.service.UserDetailsService
+import jakarta.servlet.FilterChain
+import jakarta.servlet.ServletException
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
-
-import javax.crypto.SecretKey
+import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
-class JwtAuthenticationFilter {
+class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final String SECRET = "mi_clave_super_secreta_para_jwt_12345678901234567890"
+    private final JwtService jwtService
+    private final UserDetailsService userDetailsService
 
-    private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes())
-
-    private final long ACCESS_EXPIRATION = 1000 * 60 * 15      // 15 min
-    private final long REFRESH_EXPIRATION = 1000L * 60 * 60 * 24 * 7 // 7 días
-
-    String generateAccessToken(String username, List<String> roles) {
-
-        return Jwts.builder()
-                .subject(username)
-                .claim("roles", roles)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact()
+    JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+        this.jwtService = jwtService
+        this.userDetailsService = userDetailsService
     }
 
-    String generateRefreshToken(String username) {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
-        return Jwts.builder()
-                .subject(username)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact()
-    }
-
-    boolean isTokenValid(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-            return true
-        } catch (Exception e) {
-            return false
+        String authHeader = request.getHeader("Authorization")
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response)
+            return
         }
-    }
 
-    String extractUsername(String token) {
-        return getClaims(token).getSubject()
-    }
+        String token = authHeader.substring(7)
+        if (!jwtService.isTokenValid(token)) {
+            filterChain.doFilter(request, response)
+            return
+        }
 
-    List<String> extractRoles(String token) {
-        return getClaims(token).get("roles", List)
-    }
+        String username = jwtService.extractUsername(token)
 
-    private Claims getClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
+        if (username && SecurityContextHolder.getContext().getAuthentication() == null) {
+            def userDetails = userDetailsService.loadUserByUsername(username)
+
+            def authToken = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null,
+                    userDetails.authorities
+            )
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request))
+            SecurityContextHolder.getContext().setAuthentication(authToken)
+        }
+
+        filterChain.doFilter(request, response)
     }
 }

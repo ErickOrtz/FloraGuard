@@ -1,13 +1,19 @@
 package floraguard.config
 
 import floraguard.config.jwt.JwtAuthenticationFilter
+import floraguard.service.UserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -16,28 +22,23 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter
-
-    SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter
-    }
-
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                            JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
 
         http
                 .csrf { it.disable() }
-                .cors { }
-                .sessionManagement {
-                    it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+                .cors { } // usa el bean corsConfigurationSource
+                .authorizeHttpRequests { auth ->
+                    auth
+                            .requestMatchers("/api/auth/**").permitAll()
+                            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                            .requestMatchers("/especie/**").hasRole("USER")
+                            .requestMatchers("/api/**").authenticated()
+                            .anyRequest().permitAll()
                 }
-
-                .authorizeHttpRequests {
-                    it.requestMatchers("/api/auth/**").permitAll()
-                    it.requestMatchers("/api/admin/**").hasRole("ADMIN")
-                    it.requestMatchers("/api/**").authenticated()
-                    it.anyRequest().permitAll()
-                }.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter)
 
         return http.build()
     }
@@ -48,21 +49,36 @@ class SecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-
-        def config = new CorsConfiguration()
-        config.setAllowCredentials(true)
-        config.setAllowedOrigins([
-                "http://localhost:4200", // Angular
-                "http://localhost:8100"  // Ionic
-        ])
-        config.setAllowedHeaders(["*"])
-        config.setAllowedMethods(["GET", "POST", "PUT", "DELETE", "OPTIONS"])
-
-        def source = new UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", config)
-
-        return source
+    DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService,
+                                                     PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider()
+        provider.setUserDetailsService(userDetailsService)
+        provider.setPasswordEncoder(passwordEncoder)
+        return provider
     }
 
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager()
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration()
+        config.setAllowCredentials(true)
+
+        // Ajusta estos origins a tus entornos (dev)
+        config.setAllowedOrigins([
+                "http://localhost:4200",
+                "http://localhost:8100"
+        ])
+
+        config.setAllowedMethods(["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
+        config.setAllowedHeaders(["Authorization", "Content-Type", "X-Device-Id"])
+        config.setExposedHeaders(["Set-Cookie"])
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", config)
+        return source
+    }
 }

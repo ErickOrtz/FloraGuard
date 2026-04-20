@@ -1,18 +1,19 @@
 package floraguard.reporsitory
 
 import floraguard.entity.model.SesionUsuario
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
-import java.time.LocalDateTime
+import java.sql.Timestamp
 
 @Repository
-interface SesionUsuarioRepository {
+interface SesionUsuarioRepository extends JpaRepository<SesionUsuario, Long> {
 
-    List<SesionUsuario> findByUserIdAndRevokedAtIsNullAndExpiresAtAfter(Integer userId, LocalDateTime now)
+    List<SesionUsuario> findByUsuario_IdAndRevokedAtIsNullAndExpiresAtAfter(Long idUsuario, Timestamp now)
 
-    Optional<SesionUsuario> findByUserIdAndDeviceIdAndRefreshTokenHashAndRevokedAtIsNull(
-            Integer userId,
-            String deviceId,
+    Optional<SesionUsuario> findByUsuario_IdAndIdDispositivoAndRefreshTokenHashAndRevokedAtIsNull(
+            Long idUsuario,
+            String idDispositivo,
             String refreshTokenHash
     )
 }
