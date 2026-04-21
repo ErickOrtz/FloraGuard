@@ -1,4 +1,4 @@
-package floraguard.entity.model
+package floraguard.model.entity
 
 import floraguard.enums.Cliente
 import jakarta.persistence.Column
@@ -10,10 +10,12 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 
 import java.sql.Timestamp
 
-@Entity(name = "sesionusuario")
+@Entity
+@Table(name = "sesionusuario")
 class SesionUsuario {
 
     @Id

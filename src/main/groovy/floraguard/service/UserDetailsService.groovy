@@ -1,6 +1,6 @@
 package floraguard.service
 
-import floraguard.entity.model.Usuario
+import floraguard.model.entity.Usuario
 import floraguard.reporsitory.UsuarioRepository
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User

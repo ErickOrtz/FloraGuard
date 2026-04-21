@@ -1,4 +1,4 @@
-package floraguard.entity.model
+package floraguard.model.entity
 
 import floraguard.enums.RolUsuario
 import jakarta.persistence.Column
@@ -8,8 +8,10 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Table
 
-@Entity(name = "usuario")
+@Entity
+@Table(name = "usuario")
 class Usuario {
 
     @Id

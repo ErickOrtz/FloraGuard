@@ -1,6 +1,6 @@
 package floraguard.reporsitory
 
-import floraguard.entity.model.SesionUsuario
+import floraguard.model.entity.SesionUsuario
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

@@ -1,6 +1,6 @@
 package floraguard.reporsitory
 
-import floraguard.entity.model.Especie
+import floraguard.model.entity.Especie
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

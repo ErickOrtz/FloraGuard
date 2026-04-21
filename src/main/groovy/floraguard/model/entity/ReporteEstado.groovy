@@ -1,4 +1,4 @@
-package floraguard.entity.model
+package floraguard.model.entity
 
 import floraguard.enums.Respuesta
 import floraguard.enums.SaludArbol
@@ -11,8 +11,10 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 
-@Entity(name = "reporteestado")
+@Entity
+@Table(name = "reporteestado")
 class ReporteEstado {
 
     @Id

@@ -1,11 +1,11 @@
 package floraguard.controller
 
-import floraguard.entity.dto.EspecieDto
+import floraguard.model.dto.EspecieDto
 import floraguard.service.EspecieService
 import floraguard.util.RespuestaGeneral
 import jakarta.transaction.Transactional
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

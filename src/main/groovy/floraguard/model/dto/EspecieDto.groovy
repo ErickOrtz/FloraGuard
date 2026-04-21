@@ -1,6 +1,4 @@
-package floraguard.entity.dto
-
-import jakarta.persistence.Column
+package floraguard.model.dto
 
 class EspecieDto {
     String nombreComun

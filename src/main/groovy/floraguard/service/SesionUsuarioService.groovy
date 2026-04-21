@@ -1,6 +1,6 @@
 package floraguard.service
 
-import floraguard.entity.model.SesionUsuario
+import floraguard.model.entity.SesionUsuario
 import floraguard.enums.Cliente
 import floraguard.reporsitory.SesionUsuarioRepository
 import org.springframework.stereotype.Service
@@ -77,7 +77,7 @@ class SesionUsuarioService {
                     expiresAt: expiresAt
             )
             // set relación
-            nueva.usuario = new floraguard.entity.model.Usuario(id: userId)
+            nueva.usuario = new floraguard.model.entity.Usuario(id: userId)
 
             sesionUsuarioRepository.save(nueva)
         }

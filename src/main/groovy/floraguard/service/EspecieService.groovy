@@ -1,7 +1,7 @@
 package floraguard.service
 
-import floraguard.entity.dto.EspecieDto
-import floraguard.entity.model.Especie
+import floraguard.model.dto.EspecieDto
+import floraguard.model.entity.Especie
 import floraguard.reporsitory.EspecieRepository
 import org.springframework.stereotype.Service
 

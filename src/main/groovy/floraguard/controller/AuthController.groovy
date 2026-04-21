@@ -84,10 +84,19 @@ class AuthController {
             // cookie.setSecure(true) // PROD con HTTPS
             response.addCookie(cookie)
 
-            return ResponseEntity.ok([accessToken: accessToken])
+            return ResponseEntity.ok([
+                    accessToken: accessToken,
+                    expiresAt: expiresAt,
+                    message: "Login exitoso (WEB, refresh token en cookie)"
+            ])
         }
 
-        return ResponseEntity.ok([accessToken: accessToken, refreshToken: refreshToken])
+        return ResponseEntity.ok([
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+                expiresAt: expiresAt.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                message: "Login exitoso (MOBILE, refresh token en body)"
+        ])
     }
 
     @PostMapping("/refresh")
