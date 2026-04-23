@@ -33,7 +33,7 @@ class Arbol {
     @Column(name = "estado")
     EstadoArbol estado
 
-    @Column(name = "coordenas")
+    @Column(name = "coordenadas")
     String coordenadas
 
     @Column(name = "fechaPlantado")

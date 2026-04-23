@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 class AuthController {
 
     private final AuthenticationManager authenticationManager
@@ -178,23 +178,56 @@ class AuthController {
                HttpServletResponse response,
                @RequestBody(required = false) Map body) {
 
+        // 1) deviceId requerido
         String deviceId = body?.deviceId as String
         if (!deviceId) deviceId = request.getHeader("X-Device-Id")
 
-        // si no hay deviceId, al menos borrar cookie (web)
-        if (deviceId) {
-            // identificar usuario por refresh cookie si existe (opcional, aquí lo dejamos simple: revoca por deviceId si puedes)
-            // En una versión mejor: extraer username del refresh token y revocar (userId, deviceId).
+        if (!deviceId) {
+            return ResponseEntity.badRequest().body([message: "deviceId es requerido para logout"])
         }
 
-        // borrar cookie si es WEB
+        // 2) refresh token: WEB(cookie) o MOBILE(body)
+        String refreshToken = null
+
+        // WEB cookie
         if (request.cookies) {
-            Cookie cookie = new Cookie("refresh_token", null)
-            cookie.setHttpOnly(true)
-            cookie.setPath("/")
-            cookie.setMaxAge(0)
-            response.addCookie(cookie)
+            refreshToken = request.cookies.find { it.name == "refresh_token" }?.value
         }
+
+        // MOBILE body
+        if (!refreshToken && body?.refreshToken) {
+            refreshToken = body.refreshToken as String
+        }
+
+        // 3) Si tenemos refreshToken válido, obtenemos username -> userId y revocamos sesión
+        if (refreshToken && jwtService.isTokenValid(refreshToken)) {
+
+            String username = jwtService.extractUsername(refreshToken)
+
+            def usuarioOpt = usuarioRepository.findByUsuario(username)
+            if (usuarioOpt.isPresent()) {
+                def usuario = usuarioOpt.get()
+                sesionUsuarioService.revokeSession(usuario.id as Long, deviceId)
+            }
+        } else {
+            // Si no hay refreshToken (o es inválido), igual intentamos revocar si el usuario viene autenticado por access token
+            def auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication()
+            if (auth?.isAuthenticated() && auth?.principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+                String username = ((org.springframework.security.core.userdetails.UserDetails) auth.principal).username
+                def usuarioOpt = usuarioRepository.findByUsuario(username)
+                if (usuarioOpt.isPresent()) {
+                    def usuario = usuarioOpt.get()
+                    sesionUsuarioService.revokeSession(usuario.id as Long, deviceId)
+                }
+            }
+        }
+
+        // 4) borrar cookie si es WEB (siempre la intentamos borrar)
+        Cookie cookie = new Cookie("refresh_token", null)
+        cookie.setHttpOnly(true)
+        cookie.setPath("/")
+        cookie.setMaxAge(0)
+        response.addCookie(cookie)
 
         return ResponseEntity.ok([message: "Logout exitoso"])
     }

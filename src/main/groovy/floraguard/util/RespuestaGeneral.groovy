@@ -9,6 +9,7 @@ trait RespuestaGeneral {
             boolean success,
             String message,
             data = null,
+            int error = null,
             HttpStatus status = HttpStatus.OK
     ) {
 
@@ -17,6 +18,7 @@ trait RespuestaGeneral {
                 message  : message,
                 data     : data,
                 status   : status.value(),
+                error    : error,
                 timestamp: new Date()
         ]
 

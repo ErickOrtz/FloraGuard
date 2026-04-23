@@ -16,7 +16,7 @@ class JwtService {
 
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes("UTF-8"))
 
-    private final long ACCESS_EXPIRATION_MS = 1000L * 60 * 15              // 15 min
+    private final long ACCESS_EXPIRATION_MS = 1000L * 60 * 5              // 5 min
     private final long REFRESH_EXPIRATION_MS = 1000L * 60 * 60 * 24 * 7    // 7 días
 
     String generateAccessToken(String username, List<String> roles) {
