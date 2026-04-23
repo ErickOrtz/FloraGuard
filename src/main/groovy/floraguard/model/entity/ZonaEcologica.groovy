@@ -9,7 +9,7 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "zonaecologica")
-class ZonasEcologica {
+class ZonaEcologica {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

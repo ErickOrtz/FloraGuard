@@ -27,7 +27,7 @@ class Arbol {
 
     @ManyToOne
     @JoinColumn(name = "idZona")
-    ZonasEcologica idZona
+    ZonaEcologica idZona
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado")
