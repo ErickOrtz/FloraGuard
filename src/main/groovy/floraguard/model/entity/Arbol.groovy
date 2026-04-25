@@ -41,4 +41,10 @@ class Arbol {
 
     @Column(name = "descripcion")
     String descripcion
+
+    @Column(name = "urlImagen")
+    String urlImagen
+
+    @Column(name = "nombre")
+    String nombre
 }

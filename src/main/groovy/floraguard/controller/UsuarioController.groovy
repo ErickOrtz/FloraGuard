@@ -34,6 +34,20 @@ class UsuarioController implements RespuestaGeneral {
         this.usuarioService = usuarioService
     }
 
+    /**
+     * Endpoint para registrar un nuevo usuario guardián.
+     * Recibe un objeto UsuarioRequest con los datos del usuario a registrar.
+     * Maneja las siguientes situaciones:
+     * - Si el correo ya está registrado, devuelve un mensaje de error con código -1.
+     * - Si el nombre de usuario ya está registrado, devuelve un mensaje de error con código -2.
+     * - Si el registro es exitoso, devuelve un mensaje de éxito con código 0.
+     * - En caso de cualquier excepción, devuelve un mensaje de error genérico con código 500.
+     * @Author Erick Ortiz Gómez
+     * @Version 1.0
+     * @Since 25-04-2026
+     * @param datosUsuario Objeto UsuarioRequest con los datos del usuario a registrar.
+     * @return RespuestaGeneral con el resultado de la operación de registro.
+     */
     @PostMapping("/registrar/guardian")
     def registrarUsuarioGuardian(@RequestBody UsuarioRequest datosUsuario){
         try {
@@ -51,14 +65,28 @@ class UsuarioController implements RespuestaGeneral {
         }
     }
 
+    /**
+     * Endpoint para obtener la información de un usuario por su correo electrónico.
+     * Recibe el correo como parámetro de consulta.
+     * Maneja las siguientes situaciones:
+     * - Si el usuario es encontrado, devuelve un mensaje de éxito con la información del usuario.
+     * - Si el usuario no es encontrado, devuelve un mensaje de error con código NOT_FOUND.
+     * - En caso de cualquier excepción, devuelve un mensaje de error genérico con código 500.
+     * @Author Erick Ortiz Gómez
+     * @Version 1.0
+     * @Since 25-04-2026
+     * @param correo Correo electrónico del usuario a buscar.
+     * @return RespuestaGeneral con el resultado de la operación de búsqueda.
+     */
     @GetMapping("/obtener/usuario")
     def obtenerUsuarioPorCorreo(String correo) {
         try {
             def usuario = usuarioService.obtenerUsuarioPorCorreo(correo)
             if (usuario != null) {
-                return respuestaGeneral(true, "Usuario encontrado", usuario, HttpStatus.OK)
+                def data = [usuario : usuario]
+                return respuestaGeneral(true, "Usuario encontrado",data ,0, HttpStatus.OK)
             } else {
-                return respuestaGeneral(false, "Usuario no encontrado", null, HttpStatus.NOT_FOUND)
+                return respuestaGeneral(false, "Usuario no encontrado", null,400, HttpStatus.NOT_FOUND)
             }
         } catch (Exception e) {
             e.printStackTrace()

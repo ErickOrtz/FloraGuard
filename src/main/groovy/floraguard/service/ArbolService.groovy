@@ -1,11 +1,11 @@
 package floraguard.service
 
-import floraguard.model.dto.UsuarioRequest
+
 import floraguard.model.entity.Arbol
-import floraguard.model.entity.Usuario
 import floraguard.reporsitory.AdopcionRepository
 import floraguard.reporsitory.ArbolRepository
 import floraguard.reporsitory.UsuarioRepository
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
@@ -21,9 +21,9 @@ class ArbolService {
         this.adopcionRepository = adopcionRepository
     }
 
-    def obtenerArboles() {
+    def listarArboles() {
         try {
-            return arbolRepository.findAll()
+            return arbolRepository.findArbolesDisponibles()
         } catch (Exception e) {
             e.printStackTrace()
             throw new Exception("Error al obtener los árboles: ${e.getMessage()}")
@@ -36,6 +36,23 @@ class ArbolService {
         } catch (Exception e) {
             e.printStackTrace()
             throw new Exception("Error al obtener el árbol por ID: ${e.getMessage()}")
+        }
+    }
+
+    @Transactional(rollbackOn = Exception.class)
+    def actualizarNombreArbol(Long id, String nuevoNombre) {
+        try {
+            def arbol = arbolRepository.findById(id).orElse(null)
+            if (arbol) {
+                arbol.nombre = nuevoNombre
+                arbolRepository.save(arbol)
+                return arbol
+            } else {
+                return null
+            }
+        } catch (Exception e) {
+            e.printStackTrace()
+            throw new Exception("Error al actualizar el nombre del árbol: ${e.getMessage()}")
         }
     }
 }
