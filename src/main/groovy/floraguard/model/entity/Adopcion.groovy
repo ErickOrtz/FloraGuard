@@ -28,4 +28,7 @@ class Adopcion {
 
     @Column(name = "fechaAdopcion")
     String fechaAdopcion
+
+    @Column(name = "activa")
+    int activa
 }

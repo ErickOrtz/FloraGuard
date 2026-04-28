@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController
  * @Since 2024-06-01
  */
 @RestController
-@RequestMapping("/api/usuarios")
+@RequestMapping("/usuarios")
 class UsuarioController implements RespuestaGeneral {
 
     private final UsuarioService usuarioService
