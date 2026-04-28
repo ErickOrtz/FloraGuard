@@ -114,15 +114,20 @@ class AuthController {
         }
 
         String refreshToken = null
+        String clientTypeStr = clientTypeRaw ? clientTypeRaw.toUpperCase() : null
 
-        // WEB → cookie
-        if (request.cookies) {
-            refreshToken = request.cookies.find { it.name == "refresh_token" }?.value
-        }
-
-        // MOBILE → body
-        if (!refreshToken && body?.refreshToken) {
-            refreshToken = body.refreshToken as String
+        if (clientTypeStr == "MOBILE") {
+            // MOBILE: refreshToken siempre del body
+            refreshToken = body?.refreshToken as String
+        } else {
+            // WEB: refreshToken de cookie
+            if (request.cookies) {
+                refreshToken = request.cookies.find { it.name == "refresh_token" }?.value
+            }
+            // fallback: si no hay cookie, intenta body
+            if (!refreshToken && body?.refreshToken) {
+                refreshToken = body.refreshToken as String
+            }
         }
 
         if (!refreshToken || !jwtService.isTokenValid(refreshToken)) {
@@ -158,8 +163,8 @@ class AuthController {
         Cliente clientType = clientTypeRaw ? Cliente.valueOf(clientTypeRaw) : (sesionOpt.get().cliente as Cliente)
         sesionUsuarioService.upsertSession(usuario.id as Long, deviceId, clientType, newRefresh, newExpiresAt)
 
-        // Si venía por cookie, asumimos WEB y devolvemos cookie nueva
-        if (request.cookies) {
+        // Si es WEB, devuelve cookie nueva
+        if (clientTypeStr == "WEB" && request.cookies) {
             Cookie cookie = new Cookie("refresh_token", newRefresh)
             cookie.setHttpOnly(true)
             cookie.setPath("/")

@@ -78,7 +78,7 @@ class ArbolController implements RespuestaGeneral {
             if (arbolesAdoptados) {
                 return respuestaGeneral(true, "Árboles adoptados por el usuario obtenidos exitosamente", arbolesAdoptados,0, HttpStatus.OK)
             } else {
-                return respuestaGeneral(false, "No se encontraron árboles adoptados por el usuario con ID: ${idArbol}", null,0, HttpStatus.NOT_FOUND)
+                return respuestaGeneral(false, "No se encontraron árboles adoptados por el usuario: ${usuarioRequest.getUsuario()}", null,0, HttpStatus.NOT_FOUND)
             }
         }catch (Exception e){
             e.printStackTrace()
