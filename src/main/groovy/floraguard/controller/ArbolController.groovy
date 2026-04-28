@@ -6,6 +6,7 @@ import floraguard.service.AdopcionService
 import floraguard.service.ArbolService
 import floraguard.util.RespuestaGeneral
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController
  * @Version: 1.0
  * @Since: 25-04-2026
  */
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/arbol")
 class ArbolController implements RespuestaGeneral {
