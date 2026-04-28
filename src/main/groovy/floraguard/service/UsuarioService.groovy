@@ -42,8 +42,8 @@ class UsuarioService {
     def registrarUsuarioGuardian(UsuarioRequest datosUsuario) {
         try{
 
-            if (usuarioRepository.existByCorreo(datosUsuario.getCorreo())) return -1;
-            if (usuarioRepository.existByUsuario(datosUsuario.getUsuario())) return  -2;
+            if (usuarioRepository.existsByCorreo(datosUsuario.getCorreo())) return -1;
+            if (usuarioRepository.existsByUsuario(datosUsuario.getUsuario())) return  -2;
 
             Usuario nuevoUsuario = new Usuario()
 
@@ -61,26 +61,4 @@ class UsuarioService {
             throw new RuntimeException("Error al registrar el usuario guardian: " + e.getMessage())
         }
     }
-
-    /**
-     * Obtiene un usuario por su correo electrónico.
-     *
-     * @param correo El correo electrónico del usuario a buscar.
-     * @return El usuario encontrado o un nuevo objeto Usuario si no se encuentra ningún usuario con el correo proporcionado.
-     * @throws RuntimeException Si ocurre un error durante la búsqueda del usuario.
-     * @author Erick Ortiz Gomez
-     * @version 1.0
-     * @since 22-04-2026
-     */
-    def obtenerUsuarioPorCorreo(String correo) {
-        try{
-            Optional<Usuario> usuarioOpt = usuarioRepository.findByUsuario(correo)
-            if (usuarioOpt.isPresent()) {
-                return usuarioOpt.get()
-            } else return new Usuario()
-        }catch (Exception e){
-            throw new RuntimeException("Error al obtener el usuario.")
-        }
-    }
-
 }
