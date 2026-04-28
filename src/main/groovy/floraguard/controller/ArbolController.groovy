@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.security.core.context.SecurityContextHolder
 
 /**
  * Controlador para manejar las operaciones relacionadas con los árboles.
@@ -74,17 +75,27 @@ class ArbolController implements RespuestaGeneral {
      * @Since: 25-04-2026
      */
     @GetMapping("obtener/arboles/adoptados")
-    def obtenerArbolesAdoptadosPorUsuario(@RequestBody UsuarioRequest usuarioRequest){
-        try{
-            def arbolesAdoptados = adopcionService.obtenerArbolesAdoptadosPorUsuario(usuarioRequest)
-            if (arbolesAdoptados) {
-                return respuestaGeneral(true, "Árboles adoptados por el usuario obtenidos exitosamente", arbolesAdoptados,0, HttpStatus.OK)
-            } else {
-                return respuestaGeneral(false, "No se encontraron árboles adoptados por el usuario con ID: ${idArbol}", null,0, HttpStatus.NOT_FOUND)
+    def obtenerArbolesAdoptadosPorUsuario(){
+        try {
+            def auth = SecurityContextHolder.getContext().getAuthentication()
+
+            if (auth == null || !auth.isAuthenticated() || auth.principal == "anonymousUser") {
+                return respuestaGeneral(false, "Usuario no autenticado", null, 401, HttpStatus.UNAUTHORIZED)
             }
-        }catch (Exception e){
+
+            String username = auth.name
+
+            def arbolesAdoptados = adopcionService.obtenerArbolesAdoptadosPorUsuario2(username)
+
+            if (arbolesAdoptados) {
+                return respuestaGeneral(true, "Árboles obtenidos", arbolesAdoptados, 0, HttpStatus.OK)
+            } else {
+                return respuestaGeneral(false, "No hay árboles adoptados", null, 404, HttpStatus.NOT_FOUND)
+            }
+
+        } catch (Exception e) {
             e.printStackTrace()
-            return respuestaGeneral(false, "Error al obtener los árboles adoptados por el usuario: Error interno del servidor.", null,500, HttpStatus.INTERNAL_SERVER_ERROR)
+            return respuestaGeneral(false, "Error interno", null, 500, HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 

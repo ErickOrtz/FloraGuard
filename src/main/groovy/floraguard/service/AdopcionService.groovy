@@ -107,4 +107,28 @@ class AdopcionService {
             throw new Exception("Error al obtener los árboles adoptados por el usuario: ${e.getMessage()}")
         }
     }
+
+    def obtenerArbolesAdoptadosPorUsuario2(String username) {
+        try {
+            Optional<Usuario> usuarioOpt = usuarioRepository.findByUsuario(username)
+
+            if (usuarioOpt.isPresent()) {
+                Usuario usuario = usuarioOpt.get()
+
+                def adopciones = adopcionRepository.obtenerAdopcionesPorUsuario(usuario.getId())
+
+                def arbolesAdoptados = adopciones.collect { adopcion ->
+                    arbolRepository.findById(adopcion.getArbol().getId()).orElse(null)
+                }.findAll { it != null }
+
+                return arbolesAdoptados
+            } else {
+                return []
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace()
+            throw new Exception("Error al obtener los árboles adoptados por el usuario: ${e.getMessage()}")
+        }
+    }
 }
