@@ -89,9 +89,9 @@ class AdopcionService {
      * @Version: 1.0
      * @Since: 25-04-2026
      */
-    def obtenerArbolesAdoptadosPorUsuario(UsuarioRequest usuarioRequest) {
+    def obtenerArbolesAdoptadosPorUsuario(String claveUsuario) {
         try {
-            Optional<Usuario> usuarioOpt = usuarioRepository.findByUsuario(usuarioRequest.getUsuario())
+            Optional<Usuario> usuarioOpt = usuarioRepository.findByUsuario(claveUsuario)
             if (usuarioOpt.isPresent()) {
                 Usuario usuario = usuarioOpt.get()
                 def adopciones = adopcionRepository.obtenerAdopcionesPorUsuario(usuario.getId())

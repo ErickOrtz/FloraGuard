@@ -72,9 +72,19 @@ class ArbolController implements RespuestaGeneral {
      * @Since: 25-04-2026
      */
     @GetMapping("obtener/arboles/adoptados")
-    def obtenerArbolesAdoptadosPorUsuario(@RequestBody UsuarioRequest usuarioRequest){
+    def obtenerArbolesAdoptadosPorUsuario(){
         try{
-            def arbolesAdoptados = adopcionService.obtenerArbolesAdoptadosPorUsuario(usuarioRequest)
+
+            def auth = SecurityContextHolder.getContext().getAuthentication()
+
+            if (auth == null || !auth.isAuthenticated() || auth.principal == "anonymousUser") {
+                return respuestaGeneral(false, "Usuario no autenticado", null, 401, HttpStatus.UNAUTHORIZED)
+            }
+
+            String username = auth.name
+
+            def arbolesAdoptados = adopcionService.obtenerArbolesAdoptadosPorUsuario(username)
+
             if (arbolesAdoptados) {
                 return respuestaGeneral(true, "Árboles adoptados por el usuario obtenidos exitosamente", arbolesAdoptados,0, HttpStatus.OK)
             } else {
