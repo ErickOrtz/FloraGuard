@@ -6,6 +6,7 @@ import floraguard.service.AdopcionService
 import floraguard.service.ArbolService
 import floraguard.util.RespuestaGeneral
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -64,8 +65,7 @@ class ArbolController implements RespuestaGeneral {
     }
 
     /**
-     * Endpoint para obtener los árboles adoptados por un usuario específico.
-     * @param usuarioRequest Objeto que contiene la información del usuario para el cual se desean obtener los árboles adoptados.
+     * Endpoint para obtener los árboles adoptados por un usuario específico obtenido desde el accesToken.
      * @return RespuestaGeneral con la lista de árboles adoptados por el usuario o un mensaje de error.
      * @Author: Erick Ortiz Gómez
      * @Version: 1.0
@@ -88,7 +88,7 @@ class ArbolController implements RespuestaGeneral {
             if (arbolesAdoptados) {
                 return respuestaGeneral(true, "Árboles adoptados por el usuario obtenidos exitosamente", arbolesAdoptados,0, HttpStatus.OK)
             } else {
-                return respuestaGeneral(false, "No se encontraron árboles adoptados por el usuario: ${usuarioRequest.getUsuario()}", null,0, HttpStatus.NOT_FOUND)
+                return respuestaGeneral(false, "No se encontraron árboles adoptados por el usuario: ${username}", null,-1, HttpStatus.NOT_FOUND)
             }
         }catch (Exception e){
             e.printStackTrace()
